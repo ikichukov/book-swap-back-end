@@ -1,0 +1,29 @@
+facebook:
+  client:
+    clientId: 1037039726472624
+    clientSecret: 1f6222e7774b58b88cb6634163e67a4c
+    scope: email, public_profile
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me?fields=id,name,email
+github:
+  client:
+    clientId: 25be749b6f57e3d1ddc0
+    clientSecret: ce0a24e626fc117da40411097e8f4c8f695b52ef
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+
+spring:
+  datasource:
+    url : jdbc:postgresql://localhost:5432/book_swap
+    username : postgres
+    password : password
+  jpa:
+    show-sql : true
