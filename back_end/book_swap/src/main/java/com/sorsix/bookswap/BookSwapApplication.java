@@ -1,7 +1,7 @@
 package com.sorsix.bookswap;
 
 import com.sorsix.bookswap.authentication.ClientResources;
-import com.sorsix.bookswap.authentication.SuccessHandler;
+import com.sorsix.bookswap.authentication.AuthorizationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,12 +18,9 @@ import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilt
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
 
 import javax.servlet.Filter;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +37,7 @@ public class BookSwapApplication extends WebSecurityConfigurerAdapter {
     OAuth2ClientContext oauth2ClientContext;
 
     @Autowired
-    SuccessHandler successHandler;
+    AuthorizationSuccessHandler authorizationSuccessHandler;
 
     private Filter ssoFilter() {
         CompositeFilter filter = new CompositeFilter();
@@ -53,7 +50,7 @@ public class BookSwapApplication extends WebSecurityConfigurerAdapter {
 
     private Filter ssoFilter(ClientResources client, String path) {
         OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
-        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setAuthenticationSuccessHandler(authorizationSuccessHandler);
         OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
         filter.setRestTemplate(template);
         UserInfoTokenServices tokenServices = new UserInfoTokenServices(
@@ -90,11 +87,14 @@ public class BookSwapApplication extends WebSecurityConfigurerAdapter {
             .csrf().disable()
             .antMatcher("/**")
             .authorizeRequests()
-            .antMatchers("/", "/login**", "/webjars/**", "/error**")
+            .antMatchers("/", "/login**", "/webjars/**", "/error**", "/api/books/**", "/api/users/**")
             .permitAll()
+            .antMatchers("/api/users/authenticated")
+            .denyAll()
             .anyRequest()
             .authenticated()
-            .and().logout().logoutSuccessUrl("/").permitAll()
+            .and().logout().logoutSuccessUrl("http://localhost:4200").permitAll()
             .and().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
     }
+
 }

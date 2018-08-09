@@ -6,14 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Component
 @Scope("session")
+@RequestMapping("/api/users")
 public class UsersController {
 
     @Autowired
@@ -22,9 +20,18 @@ public class UsersController {
     @Autowired
     User authenticatedUser;
 
-    @GetMapping("/user")
-    public ResponseEntity<User> getAuthenticatedUser(Principal principal){
-        return usersService.findUser(authenticatedUser.getId())
+    @GetMapping("/authenticated")
+    public ResponseEntity<User> getAuthenticatedUser(){
+        if(authenticatedUser.getId() == null) return ResponseEntity.notFound().build();
+
+        return this.usersService.findUser(authenticatedUser.getId())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUser(@PathVariable String id){
+        return this.usersService.findUser(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
